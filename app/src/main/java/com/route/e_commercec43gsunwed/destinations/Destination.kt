@@ -22,4 +22,6 @@ sealed interface AppRoutes {
 
     @Serializable
     object HomeDestination
+    @Serializable
+    object CartDestination
 }

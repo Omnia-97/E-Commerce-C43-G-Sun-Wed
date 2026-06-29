@@ -53,7 +53,9 @@ fun HomeTab(modifier: Modifier = Modifier) {
         viewModel.events.collect {
             when (it) {
                 HomeContract.Events.Idle -> {}
-                HomeContract.Events.NavigateToCart -> {}
+                HomeContract.Events.NavigateToCart -> {
+                    navController.navigate(AppRoutes.CartDestination)
+                }
                 is HomeContract.Events.NavigateToProductDetails -> {
                     navController.navigate(AppRoutes.ProductDetailsDestination(it.product?.id))
                 }
@@ -72,7 +74,10 @@ fun HomeTab(modifier: Modifier = Modifier) {
                 viewModel.handleAction(HomeContract.Actions.ClickOnCart)
             }, onSearchClick = {
                 viewModel.handleAction(HomeContract.Actions.ClickedOnSearch)
-            })
+            },
+                cartItemsCount = state.value.cartItemsCount
+
+            )
         }
         item {
             ECommerceHorizontalPager(modifier = Modifier.padding(top = 8.dp))
@@ -155,7 +160,7 @@ fun ProductsLazyRow(
                         viewModel.handleAction(HomeContract.Actions.ClickedOnProduct(it))
                     },
                     onAddCartClick = {
-
+                        viewModel.handleAction(HomeContract.Actions.ClickOnCart)
                     },
                     onAddWishlistClick = {
 

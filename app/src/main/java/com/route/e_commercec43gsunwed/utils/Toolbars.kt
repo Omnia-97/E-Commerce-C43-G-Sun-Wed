@@ -2,11 +2,16 @@ package com.route.e_commercec43gsunwed.utils
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +29,8 @@ import com.route.e_commercec43gsunwed.R
 fun ECommerceSearchAppBar(
     modifier: Modifier = Modifier,
     onCartClick: () -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    cartItemsCount: Int = 0
 ) {
     Column(modifier.padding(horizontal = 16.dp)) {
         Image(
@@ -46,15 +52,28 @@ fun ECommerceSearchAppBar(
             ) {
                 onSearchClick()
             }
-            Image(
-                painter = painterResource(R.drawable.ic_cart),
-                contentDescription = stringResource(R.string.icon_of_the_cart),
-                modifier = Modifier
-                    .padding(start = 26.dp)
-                    .clickable(true) {
+            BadgedBox(
+                badge = {
+                    if (cartItemsCount > 0) {
+                        Badge {
+                            Text(cartItemsCount.toString())
+
+                        }
+
+                    }
+
+                }
+
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_cart),
+                    contentDescription = stringResource(R.string.icon_of_the_cart),
+                    modifier = Modifier.clickable {
                         onCartClick()
                     }
-            )
+                )
+
+            }
         }
     }
 }
@@ -67,17 +86,18 @@ private fun SearchAppBarPreview() {
 
 @Composable
 fun ProductDetailsToolbar(
-    modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onCartClick: () -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    cartItemsCount: Int = 0,
+    title: String = stringResource(R.string.product_details)
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    Row(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-
-        ) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
         Image(
             painter = painterResource(R.drawable.ic_back),
             contentDescription = stringResource(R.string.navigate_back),
@@ -86,27 +106,47 @@ fun ProductDetailsToolbar(
             }
         )
         Text(
-            text = stringResource(R.string.product_details), fontSize = 20.sp,
-            fontWeight = FontWeight.W500,
-            modifier = Modifier.padding(start = 100.dp),
-            color = colorScheme.secondary
+            text = title,
+            modifier = Modifier.align(Alignment.Center),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Medium,
+            color = colorScheme.onBackground
         )
-        Image(
-            painter = painterResource(R.drawable.ic_search),
-            contentDescription = stringResource(R.string.icon_search),
-            modifier = Modifier
-                .padding(start = 44.dp, end = 32.dp)
-                .clickable(true) {
-                    onSearchClick()
+        Row(
+            modifier = Modifier.align(Alignment.CenterEnd),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_search),
+                contentDescription = stringResource(R.string.icon_search),
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(true) {
+                        onSearchClick()
+                    }
+            )
+            Spacer(modifier = Modifier.width(32.dp))
+
+            BadgedBox(
+                badge = {
+                    if (cartItemsCount > 0) {
+                        Badge {
+                            Text(cartItemsCount.toString())
+                        }
+                    }
                 }
-        )
-        Image(
-            painter = painterResource(R.drawable.ic_cart),
-            contentDescription = stringResource(R.string.icon_of_the_cart),
-            modifier = Modifier.clickable(true) {
-                onCartClick()
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_cart),
+                    contentDescription = stringResource(R.string.icon_of_the_cart),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            onCartClick()
+                        }
+                )
             }
-        )
+        }
     }
 }
 

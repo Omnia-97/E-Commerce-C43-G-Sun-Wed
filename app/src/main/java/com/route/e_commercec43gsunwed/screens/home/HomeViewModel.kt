@@ -2,8 +2,9 @@ package com.route.e_commercec43gsunwed.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.route.domain.cart.CartManager
 import com.route.domain.model.Result
-import com.route.domain.model.categories.CategoryItem
+import com.route.domain.usecases.cart.GetCartUseCase
 import com.route.domain.usecases.category.GetCategoriesUseCase
 import com.route.domain.usecases.products.GetProductsUseCase
 import com.route.e_commercec43gsunwed.screens.home.composable.home.HomeContract
@@ -19,6 +20,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getCategoriesUseCase: GetCategoriesUseCase,
     private val getProductsUseCase: GetProductsUseCase,
+    private val cartManager: CartManager,
+    private val getCartUseCase: GetCartUseCase
 ) : ViewModel(), HomeContract.ViewModel {
     override fun handleAction(actions: HomeContract.Actions) {
         viewModelScope.launch {
@@ -48,6 +51,13 @@ class HomeViewModel @Inject constructor(
     private val _events = MutableSharedFlow<HomeContract.Events>()
     override val events: SharedFlow<HomeContract.Events>
         get() = _events
+
+    init {
+        observeCartCount()
+
+        refreshCart()
+    }
+
     val isLoading = MutableStateFlow(false)
     fun getCategories() {
         viewModelScope.launch {
@@ -66,6 +76,22 @@ class HomeViewModel @Inject constructor(
                 isLoading.value = false
                 _states.value = _states.value.copy(products = it)
             }
+        }
+    }
+
+    private fun observeCartCount() {
+        viewModelScope.launch {
+            cartManager.count.collect {
+                _states.value = _states.value.copy(
+                    cartItemsCount = it
+                )
+            }
+        }
+    }
+
+    private fun refreshCart() {
+        viewModelScope.launch {
+            cartManager.refreshCartCount()
         }
     }
     // Intent  X

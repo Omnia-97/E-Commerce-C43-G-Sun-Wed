@@ -2,7 +2,7 @@ package com.route.e_commercec43gsunwed.screens.home.composable.categories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.route.domain.model.categories.CategoryItem
+import com.route.domain.cart.CartManager
 import com.route.domain.usecases.category.GetCategoriesUseCase
 import com.route.domain.usecases.category.GetSubCategoriesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,6 +17,7 @@ import javax.inject.Inject
 class CategoriesViewModel @Inject constructor(
     val getCategoriesUseCase: GetCategoriesUseCase,
     val getSubCategoriesUseCase: GetSubCategoriesUseCase,
+    private val cartManager: CartManager
 ) : ViewModel(), CategoriesContract.ViewModel {
     private val _states =
         MutableStateFlow(CategoriesContract.States())
@@ -28,10 +28,29 @@ class CategoriesViewModel @Inject constructor(
     override val events: SharedFlow<CategoriesContract.Events>
         get() = _events
 
+
+    init {
+        viewModelScope.launch {
+
+            cartManager.count.collect {
+
+                _states.value =
+                    _states.value.copy(
+                        cartItemsCount = it
+                    )
+
+            }
+
+        }
+    }
+
     override fun handleActions(action: CategoriesContract.Action) {
         viewModelScope.launch {
             when (action) {
-                CategoriesContract.Action.ClickedOnCart -> {}
+                CategoriesContract.Action.ClickedOnCart -> {
+                    _events.emit(CategoriesContract.Events.NavigateToCart)
+                }
+
                 CategoriesContract.Action.ClickedOnSearch -> {}
                 CategoriesContract.Action.Idle -> {}
                 is CategoriesContract.Action.SelectCategory -> {

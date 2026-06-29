@@ -43,4 +43,10 @@
     <string name="icon_decrement_product_from_cart">Icon Decrement Product from Cart</string>
     <string name="icon_increment_product_into_cart">Icon Increment Product Into Cart</string>
     <string name="description">Description</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="remove_from_cart">remove from cart</string>
+    <string name="total_price">Total price</string>
+    <string name="check_out">Check out</string>
+    <string name="your_cart_is_empty">Your cart is empty</string>
+    <string name="cart">Cart</string>
 </resources>

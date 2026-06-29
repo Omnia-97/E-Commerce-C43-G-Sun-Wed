@@ -105,6 +105,11 @@ fun ProductDetailImagesPager(modifier: Modifier = Modifier, productDetails: Prod
                 Modifier
                     .height(300.dp)
                     .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = colorScheme.onSecondary,
+                        shape = RoundedCornerShape(16.dp)
+                    )
             ) {
                 AsyncImage(
                     model = productDetails?.images?.get(it),

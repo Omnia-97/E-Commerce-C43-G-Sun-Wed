@@ -19,6 +19,7 @@ import androidx.navigation.toRoute
 import com.route.e_commercec43gsunwed.destinations.AppRoutes
 import com.route.e_commercec43gsunwed.screens.auth.login.LoginScreen
 import com.route.e_commercec43gsunwed.screens.auth.registration.RegistrationScreen
+import com.route.e_commercec43gsunwed.screens.cart.CartScreen
 import com.route.e_commercec43gsunwed.screens.home.HomeScreen
 import com.route.e_commercec43gsunwed.screens.products.ProductsScreen
 import com.route.e_commercec43gsunwed.screens.productsDetails.ProductDetailsScreen
@@ -75,6 +76,9 @@ fun ECommerce(modifier: Modifier = Modifier) {
                 composable<AppRoutes.ProductDetailsDestination> {
                     val productArgs = it.toRoute<AppRoutes.ProductDetailsDestination>()
                     ProductDetailsScreen(productItemId = productArgs.productId)
+                }
+                composable<AppRoutes.CartDestination> {
+                    CartScreen()
                 }
             }
         }

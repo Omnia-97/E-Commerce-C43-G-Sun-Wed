@@ -33,6 +33,7 @@ interface HomeContract {
     data class States(
         val categories: Result<List<CategoryItem>>? = null,
         val products: Result<List<ProductItem>>? = null,
+        val cartItemsCount: Int = 0
     )
 
 }

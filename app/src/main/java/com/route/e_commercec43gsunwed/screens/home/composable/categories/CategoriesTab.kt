@@ -59,7 +59,9 @@ fun CategoriesTab(modifier: Modifier = Modifier) {
         viewModel.events.collect {
             when (it) {
                 CategoriesContract.Events.Idle -> {}
-                CategoriesContract.Events.NavigateToCart -> {}
+                CategoriesContract.Events.NavigateToCart -> {
+                    navController.navigate(AppRoutes.CartDestination)
+                }
                 is CategoriesContract.Events.NavigateToProducts -> {
                     navController.navigate(
                         AppRoutes.ProductsDestination(
@@ -78,7 +80,9 @@ fun CategoriesTab(modifier: Modifier = Modifier) {
             viewModel.handleActions(CategoriesContract.Action.ClickedOnCart)
         }, onSearchClick = {
             viewModel.handleActions(CategoriesContract.Action.ClickedOnSearch)
-        })
+        },
+            cartItemsCount = state.value.cartItemsCount
+        )
         Row(modifier = Modifier.fillMaxWidth()) {
             // 1- Categories
             when (categoriesState) {

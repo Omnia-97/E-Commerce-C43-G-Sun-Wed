@@ -24,7 +24,8 @@ interface CategoriesContract {
 
     data class States(
         val categoriesList: Result<List<CategoryItem>>? = null,
-        val subCategoriesList: Result<List<SubCategoryItem>>? = null
+        val subCategoriesList: Result<List<SubCategoryItem>>? = null,
+        val cartItemsCount: Int = 0
     )
 
     sealed interface Events {

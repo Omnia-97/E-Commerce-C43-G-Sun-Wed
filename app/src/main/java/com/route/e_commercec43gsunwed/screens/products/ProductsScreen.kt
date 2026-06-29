@@ -39,7 +39,9 @@ fun ProductsScreen(modifier: Modifier = Modifier, subCategoryId: String?) {
                 is ProductsContract.Events.AddToCartEvent -> {}
                 is ProductsContract.Events.AddToWishlistEvent -> {}
                 ProductsContract.Events.Idle -> {}
-                ProductsContract.Events.NavigateToCart -> {}
+                ProductsContract.Events.NavigateToCart -> {
+                    navController.navigate(AppRoutes.CartDestination)
+                }
                 is ProductsContract.Events.NavigateToProductDetails -> {
                     navController.navigate(AppRoutes.ProductDetailsDestination(it.product?.id))
                 }
@@ -50,8 +52,13 @@ fun ProductsScreen(modifier: Modifier = Modifier, subCategoryId: String?) {
         Column(modifier = Modifier.padding(innerPadding)) {
             ECommerceSearchAppBar(
                 modifier = Modifier,
-                onCartClick = {},
-                onSearchClick = {})
+                onCartClick = {
+                    viewModel.handleActions(
+                        ProductsContract.Actions.ClickedOnCart
+                    )
+                },
+                onSearchClick = {},
+                cartItemsCount = state.value.cartItemsCount)
             when (productsState) {
                 is Result.Error -> {
 
@@ -88,8 +95,10 @@ fun ProductsLazyGrid(
         items(products) {
             ProductCard(modifier = Modifier, product = it, onProductClick = { product ->
                 viewModel.handleActions(ProductsContract.Actions.ClickedOnProduct(product))
-            }, onAddCartClick = {
-
+            }, onAddCartClick = { product ->
+                viewModel.handleActions(
+                    ProductsContract.Actions.ClickedAddToCart(product)
+                )
             }, onAddWishlistClick = {
 
             })

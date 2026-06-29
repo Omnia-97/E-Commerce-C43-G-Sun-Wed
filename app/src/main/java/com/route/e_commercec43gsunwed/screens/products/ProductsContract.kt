@@ -12,7 +12,9 @@ interface ProductsContract {
         val states: StateFlow<States>
     }
 
-    data class States(val products: Result<List<ProductItem>>? = null)
+    data class States(
+        val products: Result<List<ProductItem>>? = null, val cartItemsCount: Int = 0
+    )
 
     sealed interface Actions {
         data object Idle : Actions
