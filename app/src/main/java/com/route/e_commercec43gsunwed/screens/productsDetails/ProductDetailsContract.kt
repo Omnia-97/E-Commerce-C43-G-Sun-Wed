@@ -2,7 +2,6 @@ package com.route.e_commercec43gsunwed.screens.productsDetails
 
 import com.route.domain.model.Result
 import com.route.domain.model.products.ProductDetailsData
-import com.route.e_commercec43gsunwed.screens.cart.CartContract
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -19,7 +18,7 @@ interface ProductDetailsContract {
         data object ClickedOnSearch : Actions
         data object ClickedOnCart : Actions
         data object ClickedOnBack : Actions
-        data object ClickedAddToCart : Actions
+        data object ClickedAddToCart: Actions
         object Increment : Actions
 
         object Decrement : Actions
@@ -33,8 +32,14 @@ interface ProductDetailsContract {
         data class ShowMessage(
             val message: String
         ) : Events
+
         data object NavigateBack : Events
     }
 
-    data class States(val productDetails: Result<ProductDetailsData?>? = null, val cartItemsCount: Int = 0,  val quantity: Int = 1)
+    data class States(
+        val productDetails: Result<ProductDetailsData?>? = null,
+        val cartItemsCount: Int = 0,
+        val quantity: Int = 0,
+        val isUpdatingQuantity: Boolean = false
+    )
 }

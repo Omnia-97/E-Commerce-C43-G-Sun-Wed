@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -74,10 +75,13 @@ fun ProductDetailsScreen(modifier: Modifier = Modifier, productItemId: String?) 
             }
         }
     }
-    Scaffold(modifier = modifier, containerColor = colorScheme.onSecondary) { innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)
-            .verticalScroll(rememberScrollState())) {
+    Scaffold(modifier = modifier, containerColor = colorScheme.onSecondary)
+    { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             ProductDetailsToolbar(
                 onSearchClick = {
                     viewModel.handleActions(ProductDetailsContract.Actions.ClickedOnSearch)
@@ -105,26 +109,39 @@ fun ProductDetailsScreen(modifier: Modifier = Modifier, productItemId: String?) 
                 }
 
                 is Result.Success -> {
-                    ProductDetailImagesPager(modifier = Modifier, productDetailsState.data)
-                    ProductNamePriceRow(modifier = Modifier, productDetailsState.data)
-                    ProductRatingCartRow(
-                        modifier = Modifier,
-                        productDetailsState.data,
-                        onAddToCart = {
-                            viewModel.handleActions(
-                                ProductDetailsContract.Actions.ClickedAddToCart
-                            )
-                        })
-                    ProductDescriptionColumn(modifier = Modifier, productDetailsState.data)
-
-                    ProductDetailTotalPrice(
-                        productDetails = productDetailsState.data,
-                        quantity = states.value.quantity,
-                        onAddToCart = {
-                            viewModel.handleActions(
-                                ProductDetailsContract.Actions.ClickedAddToCart
-                            )
-                        })
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        ProductDetailImagesPager(modifier = Modifier, productDetailsState.data)
+                        ProductNamePriceRow(modifier = Modifier, productDetailsState.data)
+                        ProductRatingCartRow(
+                            modifier = Modifier,
+                            productDetailsState.data,
+                            quantity = states.value.quantity,
+                            onIncrement = {
+                                viewModel.handleActions(ProductDetailsContract.Actions.Increment)
+                            },
+                            onDecrement = {
+                                viewModel.handleActions(ProductDetailsContract.Actions.Decrement)
+                            }
+                        )
+                        ProductDescriptionColumn(modifier = Modifier, productDetailsState.data)
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        ProductDetailTotalPrice(
+                            productDetails = productDetailsState.data,
+                            quantity = if (states.value.quantity == 0) 1 else states.value.quantity,
+                            isAlreadyInCart = states.value.quantity > 0,
+                            onAddToCart = {
+                                viewModel.handleActions(ProductDetailsContract.Actions.ClickedAddToCart)
+                            }
+                        )
+                    }
                 }
 
                 null -> {}
@@ -161,7 +178,9 @@ fun ProductDescriptionColumn(modifier: Modifier = Modifier, productDetails: Prod
 fun ProductRatingCartRow(
     modifier: Modifier = Modifier,
     productDetails: ProductDetailsData?,
-    onAddToCart: () -> Unit
+    onDecrement: () -> Unit,
+    onIncrement: () -> Unit,
+    quantity: Int
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Row(
@@ -195,11 +214,9 @@ fun ProductRatingCartRow(
         )
         Spacer(Modifier.weight(1F))
         ProductCartActions(
-            onAddToCart = {
-                onAddToCart()
-            },
-            onIncrement = {},
-            onDecrement = {},
+            onIncrement = onIncrement,
+            onDecrement = onDecrement,
+            quantity = quantity
         )
     }
 }
@@ -208,7 +225,7 @@ fun ProductRatingCartRow(
 fun ProductCartActions(
     modifier: Modifier = Modifier, onIncrement: () -> Unit,
     onDecrement: () -> Unit,
-    onAddToCart: () -> Unit
+    quantity: Int
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Row(
@@ -228,7 +245,7 @@ fun ProductCartActions(
                 }
         )
         Text(
-            "0",
+            "$quantity",
             color = colorScheme.onSecondary,
             fontWeight = FontWeight.W500,
             fontSize = 18.sp,
@@ -240,8 +257,7 @@ fun ProductCartActions(
             modifier = Modifier
                 .padding(end = 16.dp)
                 .clickable {
-                    //onIncrement()
-                    onAddToCart()
+                    onIncrement()
                 }
         )
     }
@@ -282,11 +298,11 @@ fun ProductDetailTotalPrice(
     modifier: Modifier = Modifier,
     productDetails: ProductDetailsData?,
     quantity: Int,
+    isAlreadyInCart: Boolean,
     onAddToCart: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val totalPrice =
-        (productDetails?.price ?: 0) * quantity
+    val totalPrice = (productDetails?.price ?: 0) * quantity
     Row(
         modifier = modifier
             .padding(start = 16.dp, end = 16.dp, top = 24.dp)
@@ -298,7 +314,7 @@ fun ProductDetailTotalPrice(
                 "Total price",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.W500,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6F)
+                color = colorScheme.onBackground.copy(alpha = 0.6F)
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
@@ -307,14 +323,11 @@ fun ProductDetailTotalPrice(
                 fontSize = 18.sp,
                 color = colorScheme.onBackground,
             )
-
         }
         Spacer(modifier = Modifier.weight(1F))
         Box(
             modifier = Modifier
-                .clickable {
-                    onAddToCart()
-                }
+                .clickable { onAddToCart() }
                 .clip(RoundedCornerShape(20.dp))
                 .background(colorScheme.secondary)
         ) {
@@ -327,9 +340,9 @@ fun ProductDetailTotalPrice(
                     contentDescription = null,
                     tint = colorScheme.onSecondary
                 )
-                Spacer(modifier = Modifier.width(24.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Text(
-                    "Add to cart",
+                    if (isAlreadyInCart) "In cart" else "Add to cart",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.W500,
                     color = colorScheme.onSecondary
@@ -348,7 +361,8 @@ fun ProductDetailTotalPricePreview() {
             price = 3500
         ),
         quantity = 1,
-        onAddToCart = {}
+        onAddToCart = {},
+        isAlreadyInCart = false
     )
 }
 
