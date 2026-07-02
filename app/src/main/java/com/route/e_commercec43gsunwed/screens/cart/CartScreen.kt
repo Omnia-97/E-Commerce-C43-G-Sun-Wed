@@ -2,16 +2,21 @@ package com.route.e_commercec43gsunwed.screens.cart
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -77,8 +82,10 @@ fun CartScreen(modifier: Modifier = Modifier) {
             ProductDetailsToolbar(
                 onSearchClick = { viewModel.handleActions(CartContract.Actions.ClickedOnSearch) },
                 onBackClick = { viewModel.handleActions(CartContract.Actions.ClickedOnBack) },
-                onCartClick = { },
-                title = stringResource(R.string.cart)
+                title = stringResource(R.string.cart),
+                onClearCartClick = {
+                    viewModel.handleActions(CartContract.Actions.ClearCart)
+                }
             )
 
             when (val cartState = state.value.cart) {
@@ -179,75 +186,95 @@ fun CartItemRow(
     onRemove: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    Row(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(colorScheme.onSecondary),
-        verticalAlignment = Alignment.Top
+            .border(
+                width = 1.dp,
+                color = colorScheme.primaryContainer.copy(alpha = 0.3F),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .background(colorScheme.onSecondary)
     ) {
-        AsyncImage(
-            model = item.imageCover,
-            contentDescription = item.title,
-            modifier = Modifier
-                .size(80.dp)
-                .clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
-        )
-        Spacer(Modifier.size(12.dp))
-        Column(modifier = Modifier.weight(1F)) {
-            Row(verticalAlignment = Alignment.Top) {
-                Text(
-                    text = item.title ?: "",
-                    modifier = Modifier.weight(1F),
-                    color = colorScheme.onBackground,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.W500
-                )
-                Image(
-                    painter = painterResource(R.drawable.ic_delete),
-                    contentDescription = stringResource(R.string.remove_from_cart),
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clickable(enabled = !isUpdating) { onRemove() }
-                )
-            }
-            if (item.brandName != null) {
-                Text(
-                    text = item.brandName ?: "",
-                    color = colorScheme.tertiary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.W400
-                )
-            }
-            Spacer(Modifier.size(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.Top
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(85.dp)
+                    .border(
+                        width = 1.dp,
+                        color = colorScheme.primaryContainer.copy(alpha = 0.3F),
+                        shape = RoundedCornerShape(16.dp)
+                    )
             ) {
-                Text(
-                    text = "${item.price ?: 0}",
-                    color = colorScheme.secondary,
-                    fontWeight = FontWeight.W500,
-                    fontSize = 16.sp
+                AsyncImage(
+                    model = item.imageCover,
+                    contentDescription = item.title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
                 )
-                Text(
-                    text = " ${stringResource(R.string.egp)}",
-                    color = colorScheme.secondary,
-                    fontWeight = FontWeight.W500,
-                    fontSize = 12.sp
-                )
-                Spacer(Modifier.weight(1F))
-                if (isUpdating) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = colorScheme.secondary
+            }
+            Column(
+                modifier = Modifier
+                    .weight(1F)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+            ) {
+                Row(verticalAlignment = Alignment.Top) {
+                    Text(
+                        text = item.title ?: "",
+                        modifier = Modifier.weight(1F),
+                        color = colorScheme.onBackground,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.W500
                     )
-                } else {
-                    CartQuantityStepper(
-                        count = item.count ?: 1,
-                        onIncrement = onIncrement,
-                        onDecrement = onDecrement
+                    Image(
+                        painter = painterResource(R.drawable.ic_delete),
+                        contentDescription = stringResource(R.string.remove_from_cart),
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clickable(enabled = !isUpdating) { onRemove() }
                     )
+                }
+                if (item.brandName != null) {
+                    Text(
+                        text = item.brandName ?: "",
+                        color = colorScheme.onBackground.copy(alpha = 0.6F),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.W400
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${item.price ?: 0}",
+                        color = colorScheme.onBackground,
+                        fontWeight = FontWeight.W500,
+                        fontSize = 18.sp
+                    )
+                    Text(
+                        text = " ${stringResource(R.string.egp)}",
+                        color = colorScheme.onBackground,
+                        fontWeight = FontWeight.W500,
+                        fontSize = 16.sp
+                    )
+                    Spacer(Modifier.weight(1F))
+                    if (isUpdating) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = colorScheme.secondary
+                        )
+                    } else {
+                        CartQuantityStepper(
+                            count = item.count ?: 1,
+                            onIncrement = onIncrement,
+                            onDecrement = onDecrement
+                        )
+                    }
                 }
             }
         }
@@ -308,34 +335,39 @@ fun CartCheckoutFooter(
     ) {
         Column {
             Text(
-                text = stringResource(R.string.total_price),
-                color = colorScheme.tertiary,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.W400
+                "Total price",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.W500,
+                color = colorScheme.onBackground.copy(alpha = 0.6F)
             )
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "${totalPrice ?: 0} ${stringResource(R.string.egp)}",
+                fontWeight = FontWeight.W500,
+                fontSize = 18.sp,
                 color = colorScheme.onBackground,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.W500
             )
         }
-        Spacer(Modifier.weight(1F))
-        Row(
+        Spacer(modifier = Modifier.weight(1F))
+        Box(
             modifier = Modifier
-                .background(colorScheme.onBackground, RoundedCornerShape(8.dp))
                 .clickable { onCheckoutClick() }
-                .padding(horizontal = 24.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .clip(RoundedCornerShape(20.dp))
+                .background(colorScheme.secondary)
         ) {
-            Text(
-                text = stringResource(R.string.check_out),
-                color = colorScheme.onSecondary,
-                fontWeight = FontWeight.W500,
-                fontSize = 14.sp
-            )
-            Spacer(Modifier.size(8.dp))
-            Text(text = "→", color = colorScheme.onSecondary, fontSize = 14.sp)
+            Row(
+                modifier = Modifier.padding(vertical = 12.dp, horizontal = 32.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.check_out),
+                    color = colorScheme.onSecondary,
+                    fontWeight = FontWeight.W500,
+                    fontSize = 20.sp
+                )
+                Spacer(Modifier.size(8.dp))
+                Text(text = "→", color = colorScheme.onSecondary, fontSize = 14.sp)
+            }
         }
     }
 }

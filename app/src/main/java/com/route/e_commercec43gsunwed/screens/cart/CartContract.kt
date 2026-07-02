@@ -22,6 +22,7 @@ interface CartContract {
         data object ClickedOnSearch : Actions
         data object ClickedOnBack : Actions
         data object ClickedCheckout : Actions
+        data object ClearCart : Actions
     }
 
     sealed interface Events {

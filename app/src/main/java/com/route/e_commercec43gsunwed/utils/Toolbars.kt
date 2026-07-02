@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -87,10 +88,12 @@ private fun SearchAppBarPreview() {
 @Composable
 fun ProductDetailsToolbar(
     onBackClick: () -> Unit,
-    onCartClick: () -> Unit,
+    onCartClick: () -> Unit ={},
     onSearchClick: () -> Unit,
     cartItemsCount: Int = 0,
-    title: String = stringResource(R.string.product_details)
+    title: String = stringResource(R.string.product_details),
+    isProductDetails : Boolean = false,
+    onClearCartClick: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(
@@ -126,24 +129,36 @@ fun ProductDetailsToolbar(
                     }
             )
             Spacer(modifier = Modifier.width(32.dp))
-
-            BadgedBox(
-                badge = {
-                    if (cartItemsCount > 0) {
-                        Badge {
-                            Text(cartItemsCount.toString())
+            if(isProductDetails){
+                BadgedBox(
+                    badge = {
+                        if (cartItemsCount > 0) {
+                            Badge {
+                                Text(cartItemsCount.toString())
+                            }
                         }
                     }
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_cart),
+                        contentDescription = stringResource(R.string.icon_of_the_cart),
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                onCartClick()
+                            }
+                    )
                 }
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_cart),
+            }else{
+                Icon(
+                    painter = painterResource(R.drawable.ic_delete),
                     contentDescription = stringResource(R.string.icon_of_the_cart),
                     modifier = Modifier
                         .size(24.dp)
                         .clickable {
-                            onCartClick()
-                        }
+                            onClearCartClick()
+                        },
+                    tint = colorScheme.secondary
                 )
             }
         }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.route.domain.cart.CartManager
 import com.route.domain.model.Result
+import com.route.domain.usecases.cart.ClearCartUseCase
 import com.route.domain.usecases.cart.GetCartUseCase
 import com.route.domain.usecases.cart.RemoveCartItemUseCase
 import com.route.domain.usecases.cart.UpdateCartItemQuantityUseCase
@@ -20,6 +21,7 @@ class CartViewModel @Inject constructor(
     private val getCartUseCase: GetCartUseCase,
     private val updateCartItemQuantityUseCase: UpdateCartItemQuantityUseCase,
     private val removeCartItemUseCase: RemoveCartItemUseCase,
+    private val clearCartUseCase: ClearCartUseCase,
     private val cartManager: CartManager
 ) : ViewModel(), CartContract.ViewModel {
 
@@ -61,6 +63,7 @@ class CartViewModel @Inject constructor(
                 CartContract.Actions.ClickedOnSearch -> _events.emit(CartContract.Events.NavigateToSearch)
                 CartContract.Actions.ClickedOnBack -> _events.emit(CartContract.Events.NavigateBack)
                 CartContract.Actions.ClickedCheckout -> _events.emit(CartContract.Events.NavigateToCheckout)
+                CartContract.Actions.ClearCart -> clearCart()
             }
         }
     }
@@ -109,6 +112,26 @@ class CartViewModel @Inject constructor(
                     is Result.Success -> {
                         _states.value = _states.value.copy(cart = it, isUpdatingItemId = null)
                         cartManager.updateCount(it.data?.numOfCartItems ?: 0)
+                    }
+                }
+            }
+        }
+    }
+    private fun clearCart() {
+        viewModelScope.launch {
+            _states.value = _states.value.copy(isLoading = true)
+            clearCartUseCase.invoke().collect {
+                when (it) {
+                    is Result.Success -> {
+                        _states.value = _states.value.copy(
+                            cart = Result.Success(null),
+                            isLoading = false
+                        )
+                        cartManager.updateCount(0)
+                    }
+                    is Result.Error -> {
+                        _states.value = _states.value.copy(isLoading = false)
+                        _events.emit(CartContract.Events.ShowMessage(it.failure.message))
                     }
                 }
             }

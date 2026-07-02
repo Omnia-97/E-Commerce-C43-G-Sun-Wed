@@ -95,8 +95,8 @@ fun ProductDetailsScreen(modifier: Modifier = Modifier, productItemId: String?) 
                 onCartClick = {
                     viewModel.handleActions(ProductDetailsContract.Actions.ClickedOnCart)
                 },
-
-                cartItemsCount = states.value.cartItemsCount
+                cartItemsCount = states.value.cartItemsCount,
+                isProductDetails = true
             )
 
             val productDetailsState = states.value.productDetails
@@ -308,7 +308,7 @@ fun ProductDetailTotalPrice(
             .padding(start = 16.dp, end = 16.dp, top = 24.dp)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
-    ) {
+    ){
         Column {
             Text(
                 "Total price",
