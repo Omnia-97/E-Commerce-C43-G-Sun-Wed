@@ -2,7 +2,6 @@ package com.route.e_commercec43gsunwed.screens.home.composable.home
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +31,7 @@ import com.route.domain.model.products.ProductItem
 import com.route.e_commercec43gsunwed.LocalNavController
 import com.route.e_commercec43gsunwed.R
 import com.route.e_commercec43gsunwed.destinations.AppRoutes
+import com.route.e_commercec43gsunwed.destinations.AppRoutes.ProductDetailsDestination
 import com.route.e_commercec43gsunwed.screens.home.HomeViewModel
 import com.route.e_commercec43gsunwed.utils.CategoryCard
 import com.route.e_commercec43gsunwed.utils.ECommerceSearchAppBar
@@ -56,8 +56,9 @@ fun HomeTab(modifier: Modifier = Modifier) {
                 HomeContract.Events.NavigateToCart -> {
                     navController.navigate(AppRoutes.CartDestination)
                 }
+
                 is HomeContract.Events.NavigateToProductDetails -> {
-                    navController.navigate(AppRoutes.ProductDetailsDestination(it.product?.id))
+                    navController.navigate(ProductDetailsDestination(it.product?.id))
                 }
 
                 HomeContract.Events.NavigateToSearch -> {}
@@ -70,11 +71,12 @@ fun HomeTab(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         item {
-            ECommerceSearchAppBar(onCartClick = {
-                viewModel.handleAction(HomeContract.Actions.ClickOnCart)
-            }, onSearchClick = {
-                viewModel.handleAction(HomeContract.Actions.ClickedOnSearch)
-            },
+            ECommerceSearchAppBar(
+                onCartClick = {
+                    viewModel.handleAction(HomeContract.Actions.ClickOnCart)
+                }, onSearchClick = {
+                    viewModel.handleAction(HomeContract.Actions.ClickedOnSearch)
+                },
                 cartItemsCount = state.value.cartItemsCount
 
             )
@@ -146,6 +148,7 @@ fun ProductsLazyRow(
     products: List<ProductItem>?,
     viewModel: HomeViewModel
 ) {
+    val wishlistIds = viewModel.wishlistIds.collectAsStateWithLifecycle()
     if (products != null)
         LazyRow(
             modifier = modifier,
@@ -162,9 +165,11 @@ fun ProductsLazyRow(
                     onAddCartClick = {
                         viewModel.handleAction(HomeContract.Actions.ClickOnCart)
                     },
-                    onAddWishlistClick = {
-
-                    })
+                    isInWishlist = wishlistIds.value.contains(it.id),
+                    onAddWishlistClick = { product ->
+                        viewModel.handleAction(HomeContract.Actions.ToggleWishlist(product))
+                    },
+                )
             }
 
         }

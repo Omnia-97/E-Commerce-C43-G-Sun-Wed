@@ -23,6 +23,7 @@ interface ProductsContract {
         data class ClickedOnProduct(val product: ProductItem?) : Actions
         data class ClickedAddToWishlist(val product: ProductItem?) : Actions
         data class ClickedAddToCart(val product: ProductItem?) : Actions
+        data class ToggleWishlist(val product: ProductItem?) : Actions
     }
 
     sealed interface Events {

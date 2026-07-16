@@ -7,6 +7,11 @@ import com.route.domain.model.Result
 import com.route.domain.model.products.ProductItem
 import com.route.domain.usecases.cart.AddToCartUseCase
 import com.route.domain.usecases.products.GetProductsUseCase
+import com.route.domain.usecases.wishlist.AddToWishlistUseCase
+import com.route.domain.usecases.wishlist.GetWishlistUseCase
+import com.route.domain.usecases.wishlist.RemoveFromWishlistUseCase
+import com.route.domain.wishlist.WishlistManager
+import com.route.e_commercec43gsunwed.screens.products.ProductsContract.Events.NavigateToProductDetails
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +25,11 @@ import javax.inject.Inject
 class ProductsViewModel @Inject constructor(
     private val getProductsUseCase: GetProductsUseCase,
     private val addToCartUseCase: AddToCartUseCase,
-    private val cartManager: CartManager
+    private val cartManager: CartManager,
+    private val getWishlistUseCase: GetWishlistUseCase,
+    private val wishlistManager: WishlistManager,
+    private val addToWishlistUseCase: AddToWishlistUseCase,
+    private val removeFromWishlistUseCase: RemoveFromWishlistUseCase
 ) : ViewModel(), ProductsContract.ViewModel {
     override fun handleActions(actions: ProductsContract.Actions) {
         viewModelScope.launch {
@@ -35,13 +44,18 @@ class ProductsViewModel @Inject constructor(
                         ProductsContract.Events.NavigateToCart
                     )
                 }
+
                 is ProductsContract.Actions.ClickedOnProduct -> {
-                    _events.emit(ProductsContract.Events.NavigateToProductDetails(actions.product))
+                    _events.emit(NavigateToProductDetails(actions.product))
                 }
 
                 ProductsContract.Actions.Idle -> {}
                 is ProductsContract.Actions.GetProducts -> {
                     getProducts(actions.subCategoryId)
+                }
+
+                is ProductsContract.Actions.ToggleWishlist -> {
+                    toggleWishlist(actions.product?.id)
                 }
             }
         }
@@ -53,6 +67,7 @@ class ProductsViewModel @Inject constructor(
     private val _states = MutableStateFlow(ProductsContract.States(null))
     override val states: StateFlow<ProductsContract.States>
         get() = _states
+
     init {
         viewModelScope.launch {
             cartManager.count.collect { count ->
@@ -63,6 +78,8 @@ class ProductsViewModel @Inject constructor(
             }
         }
     }
+
+    val wishlistIds: StateFlow<Set<String>> = wishlistManager.wishlistIds
 
     fun getProducts(subCategoryId: String?) {
         viewModelScope.launch {
@@ -93,6 +110,26 @@ class ProductsViewModel @Inject constructor(
 
                     is Result.Error -> {
 
+                    }
+                }
+            }
+        }
+    }
+
+    private fun toggleWishlist(productId: String?) {
+        productId ?: return
+        viewModelScope.launch {
+            val isCurrentlyInWishlist = wishlistManager.isInWishlist(productId)
+            if (isCurrentlyInWishlist) {
+                removeFromWishlistUseCase.invoke(productId).collect { result ->
+                    if (result is Result.Success) {
+                        wishlistManager.update(result.data ?: emptySet())
+                    }
+                }
+            } else {
+                addToWishlistUseCase.invoke(productId).collect { result ->
+                    if (result is Result.Success) {
+                        wishlistManager.update(result.data ?: emptySet())
                     }
                 }
             }

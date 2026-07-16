@@ -40,7 +40,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         when (selectedBottomNavIndex) {
             0 -> HomeTab(modifier = Modifier.padding(paddingValues))
             1 -> CategoriesTab(modifier = Modifier.padding(paddingValues))
-            2 -> WishlistTab()
+            2 -> WishlistTab(modifier = Modifier.padding(paddingValues))
             3 -> AccountTab()
         }
     }

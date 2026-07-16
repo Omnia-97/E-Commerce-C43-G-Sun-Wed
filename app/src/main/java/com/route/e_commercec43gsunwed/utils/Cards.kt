@@ -68,6 +68,7 @@ fun CategoryCard(modifier: Modifier = Modifier, category: CategoryItem) {
 fun ProductCard(
     modifier: Modifier = Modifier,
     product: ProductItem,
+    isInWishlist: Boolean,
     onProductClick: (ProductItem) -> Unit,
     onAddCartClick: (ProductItem) -> Unit,
     onAddWishlistClick: (ProductItem) -> Unit
@@ -100,7 +101,9 @@ fun ProductCard(
                 contentScale = ContentScale.Crop
             )
             Image(
-                painter = painterResource(R.drawable.ic_add_wishlist),
+                painter = if (isInWishlist) painterResource(R.drawable.ic_wishlist_filled) else painterResource(
+                    R.drawable.ic_add_wishlist
+                ),
                 contentDescription = stringResource(R.string.add_to_wishlist_image),
                 modifier = Modifier
                     .clickable(true) {

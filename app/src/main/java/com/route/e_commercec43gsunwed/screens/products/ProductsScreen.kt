@@ -19,6 +19,7 @@ import com.route.domain.model.Result
 import com.route.domain.model.products.ProductItem
 import com.route.e_commercec43gsunwed.LocalNavController
 import com.route.e_commercec43gsunwed.destinations.AppRoutes
+import com.route.e_commercec43gsunwed.destinations.AppRoutes.ProductDetailsDestination
 import com.route.e_commercec43gsunwed.utils.ECommerceSearchAppBar
 import com.route.e_commercec43gsunwed.utils.ProductCard
 
@@ -42,8 +43,9 @@ fun ProductsScreen(modifier: Modifier = Modifier, subCategoryId: String?) {
                 ProductsContract.Events.NavigateToCart -> {
                     navController.navigate(AppRoutes.CartDestination)
                 }
+
                 is ProductsContract.Events.NavigateToProductDetails -> {
-                    navController.navigate(AppRoutes.ProductDetailsDestination(it.product?.id))
+                    navController.navigate(ProductDetailsDestination(it.product?.id))
                 }
             }
         }
@@ -58,7 +60,8 @@ fun ProductsScreen(modifier: Modifier = Modifier, subCategoryId: String?) {
                     )
                 },
                 onSearchClick = {},
-                cartItemsCount = state.value.cartItemsCount)
+                cartItemsCount = state.value.cartItemsCount
+            )
             when (productsState) {
                 is Result.Error -> {
 
@@ -86,22 +89,28 @@ fun ProductsLazyGrid(
     viewModel: ProductsViewModel,
     products: List<ProductItem>
 ) {
-
+    val wishlistIds = viewModel.wishlistIds.collectAsStateWithLifecycle()
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(products) {
-            ProductCard(modifier = Modifier, product = it, onProductClick = { product ->
-                viewModel.handleActions(ProductsContract.Actions.ClickedOnProduct(product))
-            }, onAddCartClick = { product ->
-                viewModel.handleActions(
-                    ProductsContract.Actions.ClickedAddToCart(product)
-                )
-            }, onAddWishlistClick = {
-
-            })
+            ProductCard(
+                modifier = Modifier, product = it,
+                onProductClick = { product ->
+                    viewModel.handleActions(ProductsContract.Actions.ClickedOnProduct(product))
+                },
+                onAddCartClick = { product ->
+                    viewModel.handleActions(
+                        ProductsContract.Actions.ClickedAddToCart(product)
+                    )
+                },
+                isInWishlist = wishlistIds.value.contains(it.id),
+                onAddWishlistClick = { product ->
+                    viewModel.handleActions(ProductsContract.Actions.ToggleWishlist(product))
+                },
+            )
         }
     }
 }

@@ -49,4 +49,7 @@
     <string name="check_out">Check out</string>
     <string name="your_cart_is_empty">Your cart is empty</string>
     <string name="cart">Cart</string>
+    <string name="remove_from_wishlist">Remove from wishlist</string>
+    <string name="your_wishlist_is_empty">Your wishlist is empty</string>
+    <string name="add_to_cart">Add to cart</string>
 </resources>

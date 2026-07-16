@@ -202,12 +202,13 @@ fun CartItemRow(
         ) {
             Box(
                 modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
                     .fillMaxHeight()
                     .width(85.dp)
                     .border(
                         width = 1.dp,
+                        shape = RoundedCornerShape(16.dp),
                         color = colorScheme.primaryContainer.copy(alpha = 0.3F),
-                        shape = RoundedCornerShape(16.dp)
                     )
             ) {
                 AsyncImage(
@@ -276,6 +277,7 @@ fun CartItemRow(
                         )
                     }
                 }
+                Spacer(Modifier.height(16.dp))
             }
         }
     }

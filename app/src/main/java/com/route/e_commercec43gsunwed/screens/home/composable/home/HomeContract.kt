@@ -19,6 +19,7 @@ interface HomeContract {
         data object ClickedOnSearch : Actions
         data class ClickedOnCategory(val category: CategoryItem? = null) : Actions
         data class ClickedOnProduct(val product: ProductItem? = null) : Actions
+        data class ToggleWishlist(val product: ProductItem? = null) : Actions
     }
 
     sealed interface Events {
