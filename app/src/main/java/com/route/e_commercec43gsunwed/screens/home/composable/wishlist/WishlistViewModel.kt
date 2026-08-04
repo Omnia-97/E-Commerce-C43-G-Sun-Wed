@@ -2,6 +2,7 @@ package com.route.e_commercec43gsunwed.screens.home.composable.wishlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.route.domain.cart.CartManager
 import com.route.domain.model.Result
 import com.route.domain.usecases.cart.AddToCartUseCase
 import com.route.domain.usecases.wishlist.GetWishlistUseCase
@@ -20,7 +21,8 @@ class WishlistViewModel @Inject constructor(
     private val getWishlistUseCase: GetWishlistUseCase,
     private val removeFromWishlistUseCase: RemoveFromWishlistUseCase,
     private val addToCartUseCase: AddToCartUseCase,
-    private val wishlistManager: WishlistManager
+    private val wishlistManager: WishlistManager,
+    private val cartManager: CartManager,
 ) : ViewModel(), WishlistContract.ViewModel {
 
     private val _states = MutableStateFlow(WishlistContract.States())
@@ -30,6 +32,13 @@ class WishlistViewModel @Inject constructor(
     private val _events = MutableSharedFlow<WishlistContract.Events>()
     override val events: SharedFlow<WishlistContract.Events>
         get() = _events
+
+    init {
+        loadWishlistIds()
+        observeCartCount()
+    }
+    val wishlistIds: StateFlow<Set<String>> = wishlistManager.wishlistIds
+
 
     override fun handleActions(action: WishlistContract.Actions) {
         viewModelScope.launch {
@@ -98,4 +107,27 @@ class WishlistViewModel @Inject constructor(
             }
         }
     }
+    private fun loadWishlistIds() {
+        viewModelScope.launch {
+            getWishlistUseCase.invoke().collect { result ->
+                if (result is Result.Success) {
+                    val ids = result.data
+                        ?.mapNotNull { it.id }
+                        ?.toSet()
+                        ?: emptySet()
+                    wishlistManager.update(ids)
+                }
+            }
+        }
+    }
+    private fun observeCartCount() {
+        viewModelScope.launch {
+            cartManager.count.collect {
+                _states.value = _states.value.copy(
+                    cartItemsCount = it
+                )
+            }
+        }
+    }
+
 }

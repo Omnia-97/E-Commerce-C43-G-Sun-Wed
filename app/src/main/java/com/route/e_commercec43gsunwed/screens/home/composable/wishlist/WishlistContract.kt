@@ -29,6 +29,7 @@ interface WishlistContract {
     data class States(
         val wishlist: Result<List<WishlistItem>>? = null,
         val isLoading: Boolean = false,
-        val removingProductId: String? = null
+        val removingProductId: String? = null,
+        val cartItemsCount: Int = 0
     )
 }

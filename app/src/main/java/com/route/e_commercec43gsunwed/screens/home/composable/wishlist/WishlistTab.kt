@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -76,7 +77,6 @@ fun WishlistTab(modifier: Modifier = Modifier) {
             }
         }
     }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -87,7 +87,8 @@ fun WishlistTab(modifier: Modifier = Modifier) {
             onCartClick = {
                 navController.navigate(AppRoutes.CartDestination)
             },
-            onSearchClick = {}
+            onSearchClick = {},
+            cartItemsCount = state.value.cartItemsCount
         )
 
         when (val wishlistState = state.value.wishlist) {
@@ -196,19 +197,10 @@ fun WishlistItemRow(
         verticalAlignment = Alignment.CenterVertically
     )
     {
-//        AsyncImage(
-//            model = item.imageCover,
-//            contentDescription = item.title,
-//            modifier = Modifier
-//                .size(80.dp)
-//                .clip(RoundedCornerShape(12.dp)),
-//            contentScale = ContentScale.Crop
-//        )
         Box(
             modifier = Modifier
-                .width( 110.dp)
-                .height(fillMaxHeight())
-                .size(width = 110.dp, height = fillMaxHeight())
+                .width(110.dp)
+                .wrapContentHeight()
                 .clip(RoundedCornerShape(20.dp))
                 .background(colorScheme.surface)
                 .border(
@@ -242,6 +234,9 @@ fun WishlistItemRow(
                 )
                 Box(
                     modifier = Modifier
+                        .clickable{
+                            onRemoveFromWishlist()
+                        }
                         .size(30.dp)
                         .dropShadow(
                             shape = CircleShape,
