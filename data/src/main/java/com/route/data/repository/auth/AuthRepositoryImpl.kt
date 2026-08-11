@@ -1,15 +1,14 @@
 package com.route.data.repository.auth
 
-import android.util.Log
 import com.route.domain.model.Result
 import com.route.domain.model.auth.AuthResponse
 import com.route.domain.model.auth.request.LoginRequestParams
 import com.route.domain.model.auth.request.RegistrationRequestParams
+import com.route.domain.model.user.UserProfile
 import com.route.domain.repository.AuthLocalDataSource
 import com.route.domain.repository.AuthRemoteDataSource
 import com.route.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -20,17 +19,12 @@ class AuthRepositoryImpl @Inject constructor(
         val result = remoteDataSource.login(params)
         result.collect {
             if (it is Result.Success) {
-                saveToken(it.data?.token ?: "").collect {
-                    when (it) {
-                        is Result.Error -> {
-                            Log.e("TAG", "login: Error : ${it.failure.message}")
-                        }
-
-                        is Result.Success -> {
-                            Log.e("TAG", "login: Success !")
-                        }
-                    }
-                }
+                saveToken(it.data?.token ?: "").collect {}
+                saveUserProfile(
+                    name = it.data?.authUser?.name ?: "",
+                    email = it.data?.authUser?.email ?: "",
+                    phone = ""
+                ).collect {}
             }
         }
         return result
@@ -40,17 +34,12 @@ class AuthRepositoryImpl @Inject constructor(
         val result = remoteDataSource.register(params)
         result.collect {
             if (it is Result.Success) {
-                saveToken(it.data?.token ?: "").collect {
-                    when (it) {
-                        is Result.Error -> {
-                            Log.e("TAG", "Register: Error : ${it.failure.message}")
-                        }
-
-                        is Result.Success -> {
-                            Log.e("TAG", "Register: Success !")
-                        }
-                    }
-                }
+                saveToken(it.data?.token ?: "").collect {}
+                saveUserProfile(
+                    name = it.data?.authUser?.name ?: "",
+                    email = it.data?.authUser?.email ?: "",
+                    phone = params.phone ?: ""
+                ).collect {}
             }
         }
         return result
@@ -64,5 +53,15 @@ class AuthRepositoryImpl @Inject constructor(
         return localDataSource.getToken()
     }
 
+    override suspend fun saveUserProfile(
+        name: String,
+        email: String,
+        phone: String
+    ): Flow<Result<Unit>> = localDataSource.saveUserProfile(name, email, phone)
+
+    override suspend fun getUserProfile(): Flow<Result<UserProfile>> =
+        localDataSource.getUserProfile()
+    override suspend fun logout(): Flow<Result<Unit>> =
+        localDataSource.clearAllUserData()
 
 }

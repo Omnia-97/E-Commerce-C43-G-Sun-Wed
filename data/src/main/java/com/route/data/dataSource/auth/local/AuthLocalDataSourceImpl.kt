@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.route.data.dataSource.DataStoreKeys
 import com.route.domain.model.Result
+import com.route.domain.model.user.UserProfile
 import com.route.domain.repository.AuthLocalDataSource
 import com.route.domain.utils.Failure
 import kotlinx.coroutines.flow.Flow
@@ -40,6 +41,58 @@ class AuthLocalDataSourceImpl @Inject constructor(
                 Result.Success(token)
             } catch (e: Exception) {
                 Result.Error(Failure.CustomException(e.message))
+            }
+        }
+    }
+
+    override suspend fun saveUserProfile(
+        name: String,
+        email: String,
+        phone: String
+    ): Flow<Result<Unit>> {
+        return flow {
+            try {
+                dataStore.updateData {
+                    it.toMutablePreferences().also { prefs ->
+                        prefs[DataStoreKeys.USER_NAME] = name
+                        prefs[DataStoreKeys.USER_EMAIL] = email
+                        prefs[DataStoreKeys.USER_PHONE] = phone
+                    }
+                }
+                emit(Result.Success())
+            } catch (e: Exception) {
+                emit(Result.Error(Failure.CustomException(e.message)))
+            }
+        }
+    }
+
+    override suspend fun getUserProfile(): Flow<Result<UserProfile>> {
+        return dataStore.data.map { preferences ->
+            try {
+                Result.Success(
+                    UserProfile(
+                        name = preferences[DataStoreKeys.USER_NAME] ?: "",
+                        email = preferences[DataStoreKeys.USER_EMAIL] ?: "",
+                        phone = preferences[DataStoreKeys.USER_PHONE] ?: ""
+                    )
+                )
+            } catch (e: Exception) {
+                Result.Error(Failure.CustomException(e.message))
+            }
+        }
+    }
+
+    override suspend fun clearAllUserData(): Flow<Result<Unit>> {
+        return flow {
+            try {
+                dataStore.updateData {
+                    it.toMutablePreferences().also { prefs ->
+                        prefs.clear()
+                    }
+                }
+                emit(Result.Success())
+            } catch (e: Exception) {
+                emit(Result.Error(Failure.CustomException(e.message)))
             }
         }
     }

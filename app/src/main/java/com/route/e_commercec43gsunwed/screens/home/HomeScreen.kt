@@ -41,7 +41,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             0 -> HomeTab(modifier = Modifier.padding(paddingValues))
             1 -> CategoriesTab(modifier = Modifier.padding(paddingValues))
             2 -> WishlistTab(modifier = Modifier.padding(paddingValues))
-            3 -> AccountTab()
+            3 -> AccountTab(modifier = Modifier.padding(paddingValues))
         }
     }
 }
